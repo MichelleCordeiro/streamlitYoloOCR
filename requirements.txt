@@ -1,7 +1,13 @@
-
+git+https://github.com/MichelleCordeiro/pytube
+git+https://github.com/gatagat/lap@new-packaging
+# streamlit==1.37.0
+streamlit==1.2.0
+streamlit-webrtc==0.35.1
 torch==2.4.0
+# torch==2.0.1
 ultralytics==8.2.70
-streamlit==1.37.0
+# ultralytics==8.0.150
+
 # matplotlib==3.9.1
 # numpy==1.26.4
 # opencv-python==4.10.0.84

@@ -1,6 +1,7 @@
 from pathlib import Path
 import PIL
 import streamlit as st
+
 import settings
 import helper
 
@@ -11,25 +12,23 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.title("Object Detection")
-st.caption('Updload a photo with this :blue[hand signals]: :+1:, :hand:, :i_love_you_hand_sign:, and :spock-hand:.')
-st.caption('Then click the :blue[Detect Objects] button and check the result.')
+st.title("Object Detection using YOLOv8")
+st.markdown('Updload a photo or a video, paste a url from Youtube and open webcam with this hand signals: :+1:, :hand:, :spock-hand: and :i_love_you_hand_sign:.')
+st.markdown('Then click the Detect Objects button and check the result.')
 
 st.sidebar.header("ML Model Config")
 
 model_type = st.sidebar.radio(
-    "Select Task", ['Detection', 'Segmentation'])
+    "TASK", ['Detection', 'Segmentation'])
 
 confidence = float(st.sidebar.slider(
-    "Select Model Confidence", 25, 100, 40)) / 100
+    "MODEL CONFIDENCE", 25, 100, 50)) / 100
 
-# Selecting Detection Or Segmentation
 if model_type == 'Detection':
     model_path = Path(settings.DETECTION_MODEL)
 elif model_type == 'Segmentation':
     model_path = Path(settings.SEGMENTATION_MODEL)
 
-# Load Pre-trained ML Model
 try:
     model = helper.load_model(model_path)
 except Exception as ex:
@@ -41,7 +40,6 @@ source_radio = st.sidebar.radio(
     "Select Source", settings.SOURCES_LIST)
 
 source_img = None
-# If image is selected
 if source_radio == settings.IMAGE:
     source_img = st.sidebar.file_uploader(
         "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
@@ -52,17 +50,17 @@ if source_radio == settings.IMAGE:
         try:
             if source_img:
                 uploaded_image = PIL.Image.open(source_img)
-                st.image(source_img, caption="Uploaded Image",
-                         use_column_width=True)
+                st.image(source_img, caption="Uploaded Image", use_column_width=True,  width=40)
+
+
+
         except Exception as ex:
             st.error("Error occurred while opening the image.")
             st.error(ex)
 
     with col2:
             if st.sidebar.button('Detect Objects'):
-                res = model.predict(uploaded_image,
-                                    conf=confidence
-                                    )
+                res = model.predict(uploaded_image, conf=confidence)
                 boxes = res[0].boxes
                 res_plotted = res[0].plot()[:, :, ::-1]
                 st.image(res_plotted, caption='Detected Image',
@@ -78,11 +76,11 @@ if source_radio == settings.IMAGE:
 elif source_radio == settings.VIDEO:
     helper.play_stored_video(confidence, model)
 
-elif source_radio == settings.WEBCAM:
-    helper.play_webcam(confidence, model)
-
 elif source_radio == settings.YOUTUBE:
     helper.play_youtube_video(confidence, model)
+
+elif source_radio == settings.WEBCAM:
+    helper.play_webcam(confidence, model)
 
 else:
     st.error("Please select a valid source type!")
